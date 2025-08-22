@@ -1,4 +1,4 @@
--- create database PagoServiciosDB;
+create database PagoServiciosDB;
 
 use PagoServiciosDB;
 
@@ -45,14 +45,6 @@ CREATE TABLE PagoDetalle (
     FOREIGN KEY (ConceptoID) REFERENCES ConceptosPago(ConceptoID)
 );
 
--- Tabla de saldos (cargas manuales de saldo por cliente)
-CREATE TABLE Saldos (
-    SaldoID INT AUTO_INCREMENT PRIMARY KEY,
-    ClienteID INT NOT NULL,
-    Monto DECIMAL(10, 2) NOT NULL,
-    FechaCarga DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (ClienteID) REFERENCES Clientes(ClienteID)
-);
 
 CREATE TABLE Usuarios (
     Id INT AUTO_INCREMENT PRIMARY KEY,

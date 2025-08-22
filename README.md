@@ -10,6 +10,7 @@ API RESTful para la gestión de pagos de servicios de una compañía de cable e 
 - **Logs:** El sistema de logging utiliza Serilog para registrar eventos y errores en archivos diarios.
 - **Entity Framework Core:** El acceso a la base de datos se realiza mediante EF Core y el contexto `PagosServiciosDbContext`.
 - **Estructura modular:** El proyecto está organizado para facilitar la escalabilidad y el mantenimiento.
+- **Configuración de CORS:** Permite definir los orígenes permitidos para consumir la API mediante la variable de entorno `PAGOSERVICIOSAPI_ALLOWED_ORIGINS`, facilitando la integración con aplicaciones externas y mejorando la seguridad.
 
 ## Requisitos
 
@@ -18,3 +19,4 @@ API RESTful para la gestión de pagos de servicios de una compañía de cable e 
 - Variables de entorno configuradas:
   - `Connection_PagoServiciosAPI`
   - `JWT_SECRET_KEY`
+  - `PAGOSERVICIOSAPI_ALLOWED_ORIGINS`

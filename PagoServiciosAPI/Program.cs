@@ -11,6 +11,9 @@ using Serilog.Formatting.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Ejecutar como servicio de Windows
+builder.Host.UseWindowsService();
+
 // Configura Serilog para escribir en archivo
 Log.Logger = new LoggerConfiguration()
     .WriteTo.File("logs/log-.txt", rollingInterval: RollingInterval.Day)
@@ -26,21 +29,34 @@ builder.Services.AddDbContext<PagosServiciosDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
 // Add services to the container.
-
+// Configuración de servicios para la API
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-//CODIGO DE PRUEBA
+// Configuración de CORS
+var allowedOrigins = Environment.GetEnvironmentVariable("PAGOSERVICIOSAPI_ALLOWED_ORIGINS") ?? "";
+var origins = allowedOrigins.Split(';', StringSplitOptions.RemoveEmptyEntries);
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("CorsPolicy", policy =>
+    {
+        policy.WithOrigins(origins)
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 // Configuración de Swagger con soporte para JWT
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
     {
-        Title = "Colegio Pagos API",
+        Title = "Pago de Servicios API",
         Version = "v1",
-        Description = "API para gestión de pagos de colegiatura con autenticación JWT"
+        Description = "API para gestión de pagos de servicios de internet, telefonía y otros servicios.",
     });
 
     // Configuración para JWT en Swagger
@@ -110,20 +126,35 @@ builder.Services.AddAuthentication("Bearer")
         };
     });
 
+// Define URL donde correrá el servicio
+builder.WebHost.UseUrls("http://localhost:5201"); //5201 para desarrollo, 5200 para producción
+
 // Mueve esta línea después de configurar todos los servicios
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+/*if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-}
+} */
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
+app.UseCors(builder =>
+    builder.WithOrigins("*") // o "*" para todos los orígenes
+           .AllowAnyHeader()
+           .AllowAnyMethod()
+);
+
 app.MapControllers();
+
+// Log de arranque
+Directory.CreateDirectory("C:\\Deploy\\PagoServiciosAPI\\");
+File.AppendAllText("C:\\Deploy\\PagoServiciosAPI\\startup.log", $"Iniciando API: {DateTime.Now}\n");
 
 app.Run();
